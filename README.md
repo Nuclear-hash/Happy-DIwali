@@ -69,6 +69,11 @@ deploys `dist/`.
 The workflow runs `npm ci`, which triggers `npm run assets` to download the hand model
 and copy the wasm runtime, so none of the generated files need to be committed.
 
+> **Pages needs a public repository on the free plan.** If the first run fails at the
+> `actions/configure-pages@v5` step, the repository was private: make it public
+> (Settings → General → Danger Zone → Change visibility) and re-run the workflow.
+> The project builds fine either way — only Pages publishing is gated.
+
 For a user site (`https://<user>.github.io/`) or a custom domain, set the `VITE_BASE`
 environment variable in the workflow to `/`.
 
