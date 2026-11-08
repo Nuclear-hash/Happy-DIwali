@@ -1,0 +1,9 @@
+node_modules/
+dist/
+public/wasm/
+public/models/
+.DS_Store
+*.log
+.env
+.env.*
+artifacts/
