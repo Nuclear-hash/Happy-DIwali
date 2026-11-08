@@ -90,9 +90,12 @@ const cases = [
   { name: 'open palm, fingers left', hand: buildHand({ curl: OPEN, rotate: 1.55 }), expect: 'open' },
   { name: 'fist', hand: buildHand({ curl: FIST, thumb: 1 }), expect: 'fist' },
   { name: 'thumbs up', hand: buildHand({ curl: FIST, thumb: 0 }), expect: 'thumbsUp' },
-  { name: 'pointing', hand: buildHand({ curl: { ...FIST, index: 0.03 } }), expect: 'point' },
-  { name: 'pointing, tilted', hand: buildHand({ curl: { ...FIST, index: 0.03 }, rotate: -0.5 }), expect: 'point' },
+  { name: 'pointing', hand: buildHand({ curl: { ...FIST, index: 0.03 }, thumb: 0.9 }), expect: 'point' },
+  { name: 'pointing, tilted', hand: buildHand({ curl: { ...FIST, index: 0.03 }, thumb: 0.9, rotate: -0.5 }), expect: 'point' },
   { name: 'peace', hand: buildHand({ curl: { ...FIST, index: 0.03, middle: 0.03 } }), expect: 'peace' },
+  { name: 'finger gun', hand: buildHand({ curl: { ...FIST, index: 0.03 }, thumb: 0 }), expect: 'gun' },
+  { name: 'horns', hand: buildHand({ curl: { ...FIST, index: 0.03, pinky: 0.03 }, thumb: 0.6 }), expect: 'horns' },
+  { name: 'ok sign', hand: buildHand({ curl: { ...FIST, index: 0.5, middle: 0.05, ring: 0.05, pinky: 0.05 }, thumb: 0.15, pinchTips: true }), expect: 'ok' },
   { name: 'pinch', hand: buildHand({ curl: { ...FIST, index: 0.55, middle: 0.6 }, thumb: 0.15, pinchTips: true }), expect: 'pinch' },
 ];
 

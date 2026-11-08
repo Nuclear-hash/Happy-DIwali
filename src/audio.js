@@ -11,24 +11,32 @@ export class SoundKit {
 
   ensure() {
     if (this.ctx) {
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      this.unlock();
       return true;
     }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
     this.ctx = new AC();
     this.master = this.ctx.createGain();
-    this.master.gain.value = this.muted ? 0 : 0.62;
+    this.master.gain.value = this.muted ? 0 : 0.75;
     this.master.connect(this.ctx.destination);
     this.noise = this.makeNoise(2.5);
+    // a context created outside a user gesture starts suspended; resume it
+    this.unlock();
     return true;
+  }
+
+  // Call from a real user gesture (click/key) to satisfy autoplay policies.
+  unlock() {
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
   }
 
   setMuted(muted) {
     this.muted = muted;
     if (this.master && this.ctx) {
       this.master.gain.cancelScheduledValues(this.ctx.currentTime);
-      this.master.gain.setTargetAtTime(muted ? 0 : 0.62, this.ctx.currentTime, 0.05);
+      this.master.gain.setTargetAtTime(muted ? 0 : 0.75, this.ctx.currentTime, 0.05);
     }
   }
 

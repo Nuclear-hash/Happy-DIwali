@@ -33,6 +33,8 @@ const el = {
   closeHelp: $('#closeHelp'),
   muteBtn: $('#muteBtn'),
   diyaRow: $('#diyaRow'),
+  wish: $('#wish'),
+  wishClose: $('#wishClose'),
 };
 
 const sky = new Sky(el.fx);
@@ -46,9 +48,11 @@ const GESTURE_LABEL = {
   point: 'Sparkler',
   pinch: 'Fling',
   peace: 'Chakri',
+  horns: 'Fountain',
+  gun: 'Volley',
+  ok: 'Rangoli',
   fist: 'Charging',
   thumbsUp: 'Light',
-  three: 'Hand',
   unknown: 'Hand',
 };
 
@@ -133,7 +137,6 @@ function lightAllDiyas() {
     return;
   }
   unlit.forEach((i, k) => setTimeout(() => lightDiya(i), k * 110));
-  toast('May every corner of your home stay bright 🙏', 3600);
 }
 
 let rectCache = [];
@@ -169,6 +172,8 @@ function memory(id) {
       lastStreak: -9,
       lastChakri: -9,
       lastLight: -9,
+      lastVolley: -9,
+      lastRangoli: -9,
       charge: 0,
       pinchStart: 0,
       pinchFrom: { x: 0, y: 0 },
@@ -213,10 +218,35 @@ function triggerFinale() {
   toast('The grand finale 🌟', 3000);
 }
 
+let wishTimer = 0;
+
+function showWish() {
+  el.wish.hidden = false;
+  const reveal = () => el.wish.classList.add('show');
+  requestAnimationFrame(reveal);
+  // requestAnimationFrame is paused in background tabs, so guarantee the
+  // reveal still happens when the user comes back.
+  setTimeout(reveal, 80);
+  clearTimeout(wishTimer);
+  wishTimer = setTimeout(hideWish, 9000);
+}
+
+function hideWish() {
+  clearTimeout(wishTimer);
+  el.wish.classList.remove('show');
+  setTimeout(() => {
+    if (!el.wish.classList.contains('show')) el.wish.hidden = true;
+  }, 650);
+}
+
 function celebrate() {
-  triggerFinale();
-  sky.rain(80);
-  toast('Every diya is lit — Happy Diwali! 🪔', 6000);
+  sky.finale();
+  lastFinale = performance.now() / 1000;
+  sky.rain(90);
+  audio.boom(1);
+  audio.crackle(12);
+  bumpShots(5);
+  showWish();
 }
 
 function updateHands(dt, now) {
@@ -289,6 +319,25 @@ function updateHands(dt, now) {
         break;
       case 'pinch':
         sky.sparkler(h.x, h.y, dt * 0.4);
+        break;
+      case 'horns':
+        sky.fountain(h.x, h.y, dt);
+        if (Math.random() < dt * 5) audio.hiss();
+        break;
+      case 'gun':
+        if (now - st.lastVolley > 0.9) {
+          st.lastVolley = now;
+          sky.volley(h.x, h.y);
+          audio.whoosh(0.5);
+          audio.crackle(3);
+        }
+        break;
+      case 'ok':
+        if (now - st.lastRangoli > 1.3) {
+          st.lastRangoli = now;
+          sky.rangoli(h.x, h.y);
+          audio.chime(620);
+        }
         break;
       default:
         break;
@@ -422,6 +471,10 @@ function reportCameraError(err) {
 }
 
 async function startWithCamera() {
+  // Create/resume audio while the click is still a user activation — the camera
+  // and model awaits below would otherwise expire it and leave audio silent.
+  audio.ensure();
+  audio.unlock();
   el.startCamera.disabled = true;
   el.loading.hidden = false;
   el.loadingText.textContent = 'Waking the camera…';
@@ -473,6 +526,7 @@ el.startCamera.addEventListener('click', startWithCamera);
 
 el.startPointer.addEventListener('click', () => {
   audio.ensure();
+  audio.unlock();
   begin('pointer');
 });
 
@@ -507,6 +561,7 @@ el.help.addEventListener('click', (e) => {
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     el.help.hidden = true;
+    hideWish();
     return;
   }
   if (!running) return;
@@ -524,8 +579,15 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   const n = Number(e.key);
-  if (n >= 1 && n <= 6) demoGesture(n);
+  if (n >= 1 && n <= 9) demoGesture(n);
 });
+
+el.wishClose.addEventListener('click', hideWish);
+
+// Any interaction can unlock audio if the context was created suspended.
+['pointerdown', 'keydown', 'touchstart'].forEach((evt) =>
+  document.addEventListener(evt, () => audio.unlock(), { passive: true })
+);
 
 document.addEventListener('pointermove', (e) => {
   pointer.vx = e.clientX - pointer.x;
@@ -582,6 +644,21 @@ function demoGesture(n) {
     case 6:
       lightAllDiyas();
       flashGesture('thumbsUp');
+      break;
+    case 7:
+      sky.fountain(cx, cy, 0.4);
+      audio.hiss();
+      flashGesture('horns');
+      break;
+    case 8:
+      sky.volley(cx, cy);
+      audio.whoosh(0.5);
+      flashGesture('gun');
+      break;
+    case 9:
+      sky.rangoli(cx, cy);
+      audio.chime(620);
+      flashGesture('ok');
       break;
     default:
       break;
@@ -648,6 +725,10 @@ function frame(now) {
 buildDiyas();
 requestAnimationFrame(frame);
 setTimeout(openingShow, 420);
+
+if (import.meta.env.DEV) {
+  window.__diwali = { sky, audio, tracker };
+}
 
 // light two diyas as a welcome, so the row never looks dead on arrival
 setTimeout(() => {

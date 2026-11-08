@@ -20,10 +20,16 @@ Everything runs in the browser. The camera feed never leaves the device.
 | 🤏 Pinch | Hold a shell in the air; release to fling it. Pinching or pointing near a diya lights it. |
 | ✌️ Peace sign | Spins a chakri (ground spinner) at your fingertips. |
 | ✊ Fist | Hold to charge (meter fills), open your hand to launch a giant shell. |
-| 👍 Thumbs up | Lights every diya at once. |
+| 👉 Finger gun | Thumb and index in an L shape launch a three-rocket volley. |
+| 🤘 Horns | A rising fountain of sparks pours out of your hand. |
+| 👌 OK sign | Draws a rangoli: rings of coloured sparks blooming outward. |
+| 👍 Thumbs up | Lights every diya at once — when all eleven glow, a full-screen Happy Diwali wishes everyone. |
 
-Lost the camera? Move the mouse to draw sparklers, click to burst, press <kbd>1</kbd>–<kbd>6</kbd>
+Lost the camera? Move the mouse to draw sparklers, click to burst, press <kbd>1</kbd>–<kbd>9</kbd>
 to fire each gesture, <kbd>Space</kbd> for the finale, <kbd>M</kbd> to mute, <kbd>H</kbd> for help.
+
+Sound starts on the first click (browsers block audio before a user gesture); the speaker
+button toggles it.
 
 ## How it works
 

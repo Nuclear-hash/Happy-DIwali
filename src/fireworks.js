@@ -372,6 +372,53 @@ export class Sky {
     this.rings.push({ x, y, r0: 2, max: 46, life: 0, dur: 0.45, hue });
   }
 
+  // held gesture: a rising column of sparks (horns)
+  fountain(x, y, dt) {
+    this.sparkAcc += dt * 260;
+    const n = Math.min(26, Math.floor(this.sparkAcc));
+    this.sparkAcc -= n;
+    for (let i = 0; i < n; i++) {
+      const sp = rnd(140, 430);
+      this.spark(x + rnd(-5, 5), y + rnd(-3, 3), rnd(-90, 90) + (Math.random() - 0.5) * sp * 0.5, -sp, {
+        hue: rnd(28, 54),
+        life: rnd(0.55, 1.15),
+        size: rnd(0.9, 2.2),
+        grav: 430,
+        drag: 0.99,
+      });
+    }
+  }
+
+  // one-shot: three shells leave the fingertips (finger gun)
+  volley(x, y) {
+    for (let i = 0; i < 3; i++) {
+      this.fling(x + rnd(-28, 28), y + rnd(-16, 16), rnd(-280, 280), rnd(-460, -180), {
+        shell: pick(['peony', 'crackle', 'ring', 'double']),
+      });
+    }
+  }
+
+  // one-shot: concentric petal rings, like a rangoli drawn in sparks (OK sign)
+  rangoli(x, y) {
+    const pal = pick(PALETTES);
+    for (let ring = 0; ring < 3; ring++) {
+      const count = 22 + ring * 10;
+      const speed = 70 + ring * 68;
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * TAU + ring * 0.34;
+        this.spark(x, y, Math.cos(a) * speed, Math.sin(a) * speed, {
+          hue: (pick(pal) + rnd(-8, 8) + 360) % 360,
+          life: rnd(0.9, 1.5) + ring * 0.2,
+          size: rnd(1.4, 2.8),
+          grav: 26,
+          drag: 0.965,
+        });
+      }
+    }
+    this.rings.push({ x, y, r0: 4, max: 150, life: 0, dur: 0.75, hue: pal[0] });
+    this.flash = Math.min(0.45, this.flash + 0.07);
+  }
+
   ember(x, y, vy = -80) {
     this.spark(x, y, rnd(-14, 14), vy, {
       hue: rnd(30, 46),

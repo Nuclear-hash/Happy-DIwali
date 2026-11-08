@@ -42,16 +42,23 @@ export function readHand(lm) {
   // in a closed fist the thumb also touches the index tip, so a pinch also
   // requires the index finger to be reaching away from the palm
   const indexReach = dist(lm[8], lm[0]) / palm;
+  const circle = pinchDist < 0.44;
+  // an L-shaped thumb sits far from the base of the index; a tucked one does not
+  const thumbOut = dist(lm[4], lm[5]) / palm > 0.62;
 
   let label = 'unknown';
-  if (pinchDist < 0.44 && indexReach > 1.12 && !(fingers.index && fingers.middle && fingers.ring)) {
+  if (circle && fingers.middle && fingers.ring && fingers.pinky) {
+    label = 'ok';
+  } else if (circle && indexReach > 1.12 && !(fingers.index && fingers.middle && fingers.ring)) {
     label = 'pinch';
-  } else if (fingers.index && fingers.middle && !fingers.ring && !fingers.pinky) {
-    label = 'peace';
   } else if (fingers.index && fingers.middle && (fingers.ring || fingers.pinky)) {
     label = 'open';
+  } else if (fingers.index && fingers.middle && !fingers.ring && !fingers.pinky) {
+    label = 'peace';
+  } else if (fingers.index && fingers.pinky && !fingers.middle && !fingers.ring) {
+    label = 'horns';
   } else if (fingers.index && !fingers.middle && !fingers.ring && !fingers.pinky) {
-    label = 'point';
+    label = thumbOut && thumb ? 'gun' : 'point';
   } else if (!fingers.index && !fingers.middle && !fingers.ring && !fingers.pinky) {
     label = thumb && lm[4].y < lm[3].y ? 'thumbsUp' : 'fist';
   }
